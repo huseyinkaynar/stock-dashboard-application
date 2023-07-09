@@ -1,4 +1,4 @@
-package com.example.stockdashboardapplication.model;
+package com.example.stockdashboardapplication.model.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -10,7 +10,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class StockRequest {
+public class GeneratedDailyStockRequest {
 
     @JsonFormat(pattern = "dd/MM/yyyy")
     @JsonDeserialize(using = LocalDateDeserializer.class)

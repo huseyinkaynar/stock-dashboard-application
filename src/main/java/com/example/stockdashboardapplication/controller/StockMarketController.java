@@ -1,7 +1,9 @@
 package com.example.stockdashboardapplication.controller;
 
-import com.example.stockdashboardapplication.model.StockRequest;
-import com.example.stockdashboardapplication.model.StockResponse;
+import com.example.stockdashboardapplication.model.request.DailyStockDataRequest;
+import com.example.stockdashboardapplication.model.request.GeneratedDailyStockRequest;
+import com.example.stockdashboardapplication.model.response.DailyStockDataResponse;
+import com.example.stockdashboardapplication.model.response.GeneratedDailyStockResponse;
 import org.springframework.web.bind.annotation.*;
 import com.example.stockdashboardapplication.service.StockMarketService;
 import com.example.stockdashboardapplication.service.imp.StockMarketServiceImp;
@@ -16,8 +18,13 @@ public class StockMarketController {
     }
 
     @PostMapping(path = "/generate")
-    public StockResponse generateDailyStockMarketData(@RequestBody StockRequest stockRequest){
+    public GeneratedDailyStockResponse generateDailyStockMarketData(@RequestBody GeneratedDailyStockRequest stockRequest){
         return stockMarketService.generateDailyStockMarketDataCsv(stockRequest);
+    }
+
+    @PostMapping(path = "/find-daily-data")
+    public DailyStockDataResponse findDailyDataOfStocks(@RequestBody DailyStockDataRequest dailyStockDataRequest){
+        return stockMarketService.findDailyDataOfStocksCsv(dailyStockDataRequest);
     }
 
 

@@ -1,7 +1,11 @@
 package com.example.stockdashboardapplication.service.imp;
 
-import com.example.stockdashboardapplication.model.StockRequest;
-import com.example.stockdashboardapplication.model.StockResponse;
+import com.example.stockdashboardapplication.model.dto.CsvStockData;
+import com.example.stockdashboardapplication.model.request.DailyStockDataRequest;
+import com.example.stockdashboardapplication.model.request.GeneratedDailyStockRequest;
+import com.example.stockdashboardapplication.model.response.DailyStockDataResponse;
+import com.example.stockdashboardapplication.model.response.GeneratedDailyStockResponse;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -10,11 +14,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.example.stockdashboardapplication.service.StockMarketService;
 
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -23,10 +29,19 @@ public class StockMarketServiceImp implements StockMarketService {
     @Value("${isYatirimUrl}")
     public String isYatirimUrl;
 
+    public final static String CSV_PATH;
+
+    private static final String CSV_SEPARATOR = ";";
+
+    static {
+        File file = new File("csv/web_table.csv");
+        String targetFolderPath = file.getAbsolutePath();
+        CSV_PATH= targetFolderPath;
+    }
+
     @Override
-    public StockResponse generateDailyStockMarketDataCsv(StockRequest stockRequest) {
-        StockResponse stockResponse=new StockResponse();
-        String targetFolderPath = "/Users/huseyink/Desktop/stock-dashboard-application/csv";
+    public GeneratedDailyStockResponse generateDailyStockMarketDataCsv(GeneratedDailyStockRequest stockRequest) {
+        GeneratedDailyStockResponse stockResponse = new GeneratedDailyStockResponse();
 
         try {
             // Sayfayı Jsoup ile al
@@ -43,7 +58,7 @@ public class StockMarketServiceImp implements StockMarketService {
             for (Element row : headerRows) {
                 Elements headerColumns = row.select("th");
                 for (Element column : headerColumns) {
-                    csvWriter.append(column.text()).append(",");
+                    csvWriter.append(column.text()).append(CSV_SEPARATOR);
                 }
                 csvWriter.append("\n");
             }
@@ -53,7 +68,7 @@ public class StockMarketServiceImp implements StockMarketService {
             for (Element row : dataRows) {
                 Elements dataColumns = row.select("td");
                 for (Element column : dataColumns) {
-                    csvWriter.append(column.text()).append(",");
+                    csvWriter.append(column.text()).append(CSV_SEPARATOR);
                 }
                 csvWriter.append("\n");
             }
@@ -64,7 +79,7 @@ public class StockMarketServiceImp implements StockMarketService {
 
             // CSV dosyasını hedef klasöre taşı
             Path sourcePath = Path.of("web_table.csv");
-            Path targetPath = Path.of(targetFolderPath, "web_table.csv");
+            Path targetPath = Path.of(CSV_PATH);
             Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
 
 
@@ -75,5 +90,38 @@ public class StockMarketServiceImp implements StockMarketService {
         }
 
         return stockResponse;
+    }
+
+    @Override
+    public DailyStockDataResponse findDailyDataOfStocksCsv(DailyStockDataRequest dailyStockDataRequest) {
+
+        List<CsvStockData> csvStockDataList=new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(CSV_PATH))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(CSV_SEPARATOR);
+                for (String value : data) {
+                    if (dailyStockDataRequest.getStockNames().contains(value)) {
+                        csvStockDataList.add(
+                                CsvStockData.builder().
+                                stockName(data[0]).
+                                lastPrice(data[1]).
+                                percentChange(data[2]).
+                                turkishLiraChange(data[3]).
+                                turkishLiraTradingVolume(data[4]).
+                                pieceTradingVolume(data[5]).
+                                build());
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return DailyStockDataResponse.
+                builder().
+                csvStockData(csvStockDataList).
+                build();
     }
 }
