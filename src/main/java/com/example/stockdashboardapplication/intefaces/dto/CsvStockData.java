@@ -1,4 +1,4 @@
-package com.example.stockdashboardapplication.model.dto;
+package com.example.stockdashboardapplication.intefaces.dto;
 
 import lombok.Builder;
 import lombok.Getter;

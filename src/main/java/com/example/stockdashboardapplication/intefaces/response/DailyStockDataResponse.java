@@ -1,7 +1,7 @@
-package com.example.stockdashboardapplication.model.response;
+package com.example.stockdashboardapplication.intefaces.response;
 
 
-import com.example.stockdashboardapplication.model.dto.CsvStockData;
+import com.example.stockdashboardapplication.intefaces.dto.CsvStockData;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

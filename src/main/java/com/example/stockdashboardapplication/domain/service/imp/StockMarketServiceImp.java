@@ -1,10 +1,10 @@
-package com.example.stockdashboardapplication.service.imp;
+package com.example.stockdashboardapplication.domain.service.imp;
 
-import com.example.stockdashboardapplication.model.dto.CsvStockData;
-import com.example.stockdashboardapplication.model.request.DailyStockDataRequest;
-import com.example.stockdashboardapplication.model.request.GeneratedDailyStockRequest;
-import com.example.stockdashboardapplication.model.response.DailyStockDataResponse;
-import com.example.stockdashboardapplication.model.response.GeneratedDailyStockResponse;
+import com.example.stockdashboardapplication.intefaces.dto.CsvStockData;
+import com.example.stockdashboardapplication.intefaces.request.DailyStockDataRequest;
+import com.example.stockdashboardapplication.intefaces.request.GeneratedDailyStockRequest;
+import com.example.stockdashboardapplication.intefaces.response.DailyStockDataResponse;
+import com.example.stockdashboardapplication.intefaces.response.CommonStockResponse;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -12,7 +12,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import com.example.stockdashboardapplication.service.StockMarketService;
+import com.example.stockdashboardapplication.domain.service.StockMarketService;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -40,9 +40,8 @@ public class StockMarketServiceImp implements StockMarketService {
     }
 
     @Override
-    public GeneratedDailyStockResponse generateDailyStockMarketDataCsv(GeneratedDailyStockRequest stockRequest) {
-        GeneratedDailyStockResponse stockResponse = new GeneratedDailyStockResponse();
-
+    public CommonStockResponse generateDailyStockMarketDataCsv(GeneratedDailyStockRequest stockRequest) {
+        CommonStockResponse commonStockResponse = null;
         try {
             // Sayfayı Jsoup ile al
             Document document = Jsoup.connect(isYatirimUrl).get();
@@ -82,14 +81,13 @@ public class StockMarketServiceImp implements StockMarketService {
             Path targetPath = Path.of(CSV_PATH);
             Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
 
-
-            stockResponse.setMessage("Tablo CSV olarak çekildi.");
+            commonStockResponse = CommonStockResponse.builder().message("Tablo CSV olarak çekildi.").build();
         } catch (IOException e) {
             e.printStackTrace();
-            stockResponse.setMessage("Tablo CSV oluşturulurken hata oluştu.");
+            commonStockResponse = CommonStockResponse.builder().message("Tablo CSV oluşturulurken hata oluştu.").build();
         }
 
-        return stockResponse;
+        return commonStockResponse;
     }
 
     @Override

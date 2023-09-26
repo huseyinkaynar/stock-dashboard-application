@@ -1,4 +1,4 @@
-package com.example.stockdashboardapplication.model.request;
+package com.example.stockdashboardapplication.intefaces.request;
 
 import lombok.Getter;
 import lombok.Setter;
